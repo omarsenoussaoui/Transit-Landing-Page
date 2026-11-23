@@ -1,0 +1,365 @@
+---
+import '@fontsource/barlow/400.css';
+import '@fontsource/barlow/500.css';
+import '@fontsource/barlow/600.css';
+import '@fontsource/barlow-condensed/700.css';
+import '../styles/global.css';
+import { site } from '../config/site';
+
+const field =
+  'mt-2 block w-full border border-line bg-white px-4 py-3 text-[16px] text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
+const filters = [
+  { value: 'all', label: 'Toutes' },
+  { value: 'nouveau', label: 'Nouvelles' },
+  { value: 'en_cours', label: 'En cours' },
+  { value: 'traite', label: 'Traitées' },
+];
+---
+
+<!doctype html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Tableau de bord — {site.name}</title>
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  </head>
+  <body class="min-h-svh bg-paper">
+    <!-- Shown while checking the session -->
+    <div id="view-loading" class="grid min-h-svh place-items-center text-muted">Chargement…</div>
+
+    <!-- Not configured -->
+    <div id="view-setup" class="hidden min-h-svh place-items-center px-5">
+      <div class="max-w-md border-t-4 border-red-600 bg-white p-8">
+        <h1 class="text-2xl font-bold">Supabase n’est pas configuré</h1>
+        <p class="mt-3">
+          Renseignez <code>PUBLIC_SUPABASE_URL</code> et <code>PUBLIC_SUPABASE_ANON_KEY</code> dans le fichier
+          <code>.env</code>, puis relancez le site.
+        </p>
+      </div>
+    </div>
+
+    <!-- Login -->
+    <main id="view-login" class="hidden min-h-svh place-items-center px-5 py-10">
+      <form id="login-form" class="w-full max-w-sm border-t-4 border-lime bg-white p-8 shadow-[0_24px_50px_-24px_rgba(7,18,64,0.35)] sm:p-10">
+        <img src="/logo.svg" alt={site.name} width="186" height="96" class="h-12 w-auto" />
+        <h1 class="mt-6 text-3xl font-bold uppercase">Espace administrateur</h1>
+        <p class="mt-1 text-sm text-muted">Demandes de devis — {site.fullName}</p>
+
+        <label class="mt-8 block text-sm font-semibold text-ink">
+          E-mail
+          <input name="email" type="email" required autocomplete="username" class={field} />
+        </label>
+        <label class="mt-5 block text-sm font-semibold text-ink">
+          Mot de passe
+          <input name="password" type="password" required autocomplete="current-password" class={field} />
+        </label>
+        <p id="login-error" class="mt-4 hidden border-s-4 border-red-600 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" role="alert"></p>
+        <button type="submit" class="btn-primary mt-7 w-full disabled:opacity-60">Se connecter</button>
+      </form>
+    </main>
+
+    <!-- Dashboard -->
+    <div id="view-app" class="hidden">
+      <header class="on-dark bg-night text-white">
+        <div class="mx-auto flex h-16 max-w-6xl items-center gap-4 px-5">
+          <img src="/logo-white.svg" alt={site.name} width="124" height="64" class="h-9 w-auto" />
+          <span class="hidden border-s border-white/20 ps-4 font-display text-lg font-bold uppercase sm:block">Demandes de devis</span>
+          <span id="user-email" class="ms-auto hidden truncate text-sm text-white/60 md:block"></span>
+          <button id="logout" type="button" class="ms-auto inline-flex min-h-10 items-center border border-white/30 px-4 text-sm font-semibold hover:bg-white/10 md:ms-0">
+            Déconnexion
+          </button>
+        </div>
+      </header>
+
+      <main class="mx-auto max-w-6xl px-5 py-8">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex flex-wrap gap-2" role="tablist" aria-label="Filtrer par statut">
+            {
+              filters.map((f, i) => (
+                <button
+                  type="button"
+                  role="tab"
+                  data-filter={f.value}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  class="inline-flex min-h-10 items-center gap-2 border border-line bg-white px-4 text-sm font-semibold text-ink aria-selected:border-navy aria-selected:bg-navy aria-selected:text-white"
+                >
+                  {f.label}
+                  <span data-count={f.value} class="text-xs opacity-70">0</span>
+                </button>
+              ))
+            }
+          </div>
+          <div class="flex gap-2">
+            <input
+              id="search"
+              type="search"
+              placeholder="Rechercher (nom, téléphone, message…)"
+              aria-label="Rechercher"
+              class="min-h-10 w-full border border-line bg-white px-4 text-[15px] focus:border-brand focus:outline-none lg:w-80"
+            />
+            <button id="refresh" type="button" class="min-h-10 shrink-0 border border-line bg-white px-4 text-sm font-semibold text-ink hover:border-brand">
+              Actualiser
+            </button>
+            <button id="export" type="button" class="min-h-10 shrink-0 bg-lime px-4 text-sm font-semibold text-night hover:bg-lime-dark">
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <p id="list-error" class="mt-6 hidden border-s-4 border-red-600 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" role="alert"></p>
+        <p id="empty" class="mt-10 hidden text-center text-muted">Aucune demande pour le moment.</p>
+        <ul id="list" class="mt-6 space-y-3"></ul>
+      </main>
+    </div>
+
+    <script>
+      import { createClient } from '@supabase/supabase-js';
+      import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from '../lib/supabase';
+
+      type Status = 'nouveau' | 'en_cours' | 'traite';
+      interface Demande {
+        id: number;
+        created_at: string;
+        name: string;
+        company: string | null;
+        phone: string;
+        email: string | null;
+        service: string;
+        message: string;
+        language: string;
+        status: Status;
+      }
+
+      const STATUS_LABEL: Record<Status, string> = { nouveau: 'Nouvelle', en_cours: 'En cours', traite: 'Traitée' };
+      const STATUS_STYLE: Record<Status, string> = {
+        nouveau: 'border-s-lime',
+        en_cours: 'border-s-sky',
+        traite: 'border-s-line',
+      };
+
+      const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+      const views = ['view-loading', 'view-setup', 'view-login', 'view-app'];
+      const showView = (id: string) =>
+        views.forEach((v) => {
+          const el = $(v);
+          el.classList.toggle('hidden', v !== id);
+          if (v === id && v !== 'view-app') el.classList.add('grid');
+        });
+      const setError = (id: string, msg: string | null) => {
+        const el = $(id);
+        el.textContent = msg ?? '';
+        el.classList.toggle('hidden', !msg);
+      };
+
+      let rows: Demande[] = [];
+      let filter: 'all' | Status = 'all';
+      let query = '';
+
+      if (!supabaseConfigured) {
+        showView('view-setup');
+      } else {
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: { persistSession: true, autoRefreshToken: true },
+        });
+
+        const enterApp = async (email: string) => {
+          // Only emails listed in public.admins may use the dashboard
+          const { data: isAdmin, error } = await supabase.rpc('is_admin');
+          if (error || !isAdmin) {
+            await supabase.auth.signOut();
+            showView('view-login');
+            setError('login-error', 'Ce compte n’a pas accès au tableau de bord.');
+            return;
+          }
+          $('user-email').textContent = email;
+          showView('view-app');
+          await load();
+        };
+
+        const load = async () => {
+          setError('list-error', null);
+          const { data, error } = await supabase
+            .from('demandes_devis')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(1000);
+          if (error) {
+            setError('list-error', `Impossible de charger les demandes : ${error.message}`);
+            return;
+          }
+          rows = (data ?? []) as Demande[];
+          render();
+        };
+
+        const updateStatus = async (row: Demande, status: Status) => {
+          const previous = row.status;
+          row.status = status;
+          render();
+          const { error } = await supabase.from('demandes_devis').update({ status }).eq('id', row.id);
+          if (error) {
+            row.status = previous;
+            render();
+            setError('list-error', `Mise à jour impossible : ${error.message}`);
+          }
+        };
+
+        const remove = async (row: Demande) => {
+          if (!confirm(`Supprimer définitivement la demande de ${row.name} ?`)) return;
+          const { error } = await supabase.from('demandes_devis').delete().eq('id', row.id);
+          if (error) return setError('list-error', `Suppression impossible : ${error.message}`);
+          rows = rows.filter((r) => r.id !== row.id);
+          render();
+        };
+
+        // ---- Rendering (textContent only: request data is untrusted) ----
+        const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className = '', text?: string | null) => {
+          const node = document.createElement(tag);
+          if (className) node.className = className;
+          if (text != null) node.textContent = text;
+          return node;
+        };
+        const dateFmt = new Intl.DateTimeFormat('fr-DZ', { dateStyle: 'medium', timeStyle: 'short' });
+
+        const visible = () => {
+          const q = query.toLowerCase();
+          return rows.filter(
+            (r) =>
+              (filter === 'all' || r.status === filter) &&
+              (!q ||
+                [r.name, r.company, r.phone, r.email, r.service, r.message].some((v) => v?.toLowerCase().includes(q))),
+          );
+        };
+
+        const render = () => {
+          for (const key of ['all', 'nouveau', 'en_cours', 'traite']) {
+            const count = key === 'all' ? rows.length : rows.filter((r) => r.status === key).length;
+            document.querySelector(`[data-count="${key}"]`)!.textContent = String(count);
+          }
+
+          const list = $('list');
+          list.replaceChildren();
+          const items = visible();
+          $('empty').classList.toggle('hidden', items.length > 0);
+
+          for (const r of items) {
+            const li = el('li', `border-s-4 bg-white p-5 sm:p-6 ${STATUS_STYLE[r.status]}`);
+
+            const top = el('div', 'flex flex-wrap items-start justify-between gap-3');
+            const who = el('div');
+            const title = el('p', 'font-display text-xl font-bold text-ink', r.name);
+            if (r.company) title.append(el('span', 'ms-2 font-sans text-base font-medium text-muted', `· ${r.company}`));
+            who.append(title, el('p', 'text-sm text-muted', `${dateFmt.format(new Date(r.created_at))} · ${r.service} · ${r.language.toUpperCase()}`));
+
+            const actions = el('div', 'flex items-center gap-2');
+            const select = el('select', 'min-h-10 border border-line bg-white px-3 text-sm font-semibold text-ink');
+            select.setAttribute('aria-label', `Statut de la demande de ${r.name}`);
+            for (const s of Object.keys(STATUS_LABEL) as Status[]) {
+              const opt = el('option', '', STATUS_LABEL[s]);
+              opt.value = s;
+              opt.selected = s === r.status;
+              select.append(opt);
+            }
+            select.addEventListener('change', () => updateStatus(r, select.value as Status));
+            const del = el('button', 'min-h-10 border border-line px-3 text-sm text-red-700 hover:border-red-600', 'Supprimer');
+            del.type = 'button';
+            del.addEventListener('click', () => remove(r));
+            actions.append(select, del);
+            top.append(who, actions);
+
+            const contact = el('div', 'mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[15px]');
+            const tel = el('a', 'font-semibold text-brand hover:underline', r.phone);
+            tel.href = `tel:${r.phone.replace(/[^\d+]/g, '')}`;
+            tel.dir = 'ltr';
+            contact.append(tel);
+            const wa = el('a', 'font-semibold text-[#128C4A] hover:underline', 'WhatsApp');
+            wa.href = `https://wa.me/${r.phone.replace(/\D/g, '').replace(/^0/, '213')}`;
+            wa.target = '_blank';
+            wa.rel = 'noopener noreferrer';
+            contact.append(wa);
+            if (r.email) {
+              const mail = el('a', 'font-semibold text-brand hover:underline', r.email);
+              mail.href = `mailto:${r.email}`;
+              contact.append(mail);
+            }
+
+            const msg = el('p', 'mt-3 whitespace-pre-wrap border-t border-line pt-3 text-ink', r.message);
+            msg.dir = 'auto';
+
+            li.append(top, contact, msg);
+            list.append(li);
+          }
+        };
+
+        // ---- CSV export (Excel-friendly, safe against formula injection) ----
+        const csvCell = (v: unknown) => {
+          let s = v == null ? '' : String(v);
+          if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+          return `"${s.replace(/"/g, '""')}"`;
+        };
+        $('export').addEventListener('click', () => {
+          const head = ['Date', 'Nom', 'Société', 'Téléphone', 'E-mail', 'Service', 'Message', 'Langue', 'Statut'];
+          const lines = visible().map((r) =>
+            [dateFmt.format(new Date(r.created_at)), r.name, r.company, r.phone, r.email, r.service, r.message, r.language, STATUS_LABEL[r.status]]
+              .map(csvCell)
+              .join(';'),
+          );
+          const blob = new Blob(['﻿' + [head.map(csvCell).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+          const a = el('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `demandes-devis-${new Date().toISOString().slice(0, 10)}.csv`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+
+        // ---- Events ----
+        document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((btn) =>
+          btn.addEventListener('click', () => {
+            filter = btn.dataset.filter as typeof filter;
+            document.querySelectorAll('[data-filter]').forEach((b) => b.setAttribute('aria-selected', String(b === btn)));
+            render();
+          }),
+        );
+        $('search').addEventListener('input', (e) => {
+          query = (e.target as HTMLInputElement).value.trim();
+          render();
+        });
+        $('refresh').addEventListener('click', load);
+
+        $<HTMLFormElement>('login-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const form = e.currentTarget as HTMLFormElement;
+          const btn = form.querySelector('button')!;
+          const fd = new FormData(form);
+          setError('login-error', null);
+          btn.disabled = true;
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: String(fd.get('email')),
+            password: String(fd.get('password')),
+          });
+          btn.disabled = false;
+          if (error || !data.user) {
+            setError('login-error', 'E-mail ou mot de passe incorrect.');
+            return;
+          }
+          form.reset();
+          await enterApp(data.user.email ?? '');
+        });
+
+        $('logout').addEventListener('click', async () => {
+          await supabase.auth.signOut();
+          rows = [];
+          $('list').replaceChildren();
+          showView('view-login');
+        });
+
+        supabase.auth.getSession().then(({ data }) => {
+          if (data.session?.user) enterApp(data.session.user.email ?? '');
+          else showView('view-login');
+        });
+      }
+    </script>
+  </body>
+</html>

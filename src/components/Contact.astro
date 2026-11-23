@@ -133,6 +133,8 @@ const label = 'block text-sm font-semibold text-ink';
 </section>
 
 <script>
+  import { saveQuoteRequest, supabaseConfigured } from '../lib/supabase';
+
   const form = document.getElementById('quote-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
 
@@ -147,16 +149,51 @@ const label = 'block text-sm font-semibold text-ink';
       status.className = `mt-5 border-s-4 px-4 py-3 text-sm font-medium ${ok ? 'border-lime bg-paper text-ink' : 'border-red-600 bg-red-50 text-red-700'}`;
     };
 
+    const data = new FormData(form);
+    // Honeypot filled in: a bot. Pretend it worked and drop it.
+    if (data.get('botcheck')) {
+      show(form.dataset.success ?? '', true);
+      form.reset();
+      return;
+    }
+
+    const value = (key: string) => String(data.get(key) ?? '').trim();
+    const optional = (key: string) => value(key) || null;
+
+    // 1. Save in Supabase (shown in /dashboard)
+    const tasks: Promise<unknown>[] = [];
+    if (supabaseConfigured) {
+      tasks.push(
+        saveQuoteRequest({
+          name: value('name'),
+          company: optional('company'),
+          phone: value('phone'),
+          email: optional('email'),
+          service: value('service'),
+          message: value('message'),
+          language: value('language') === 'ar' ? 'ar' : 'fr',
+        }),
+      );
+    }
+    // 2. Email notification via Web3Forms (only once a real access key is set)
+    if (!value('access_key').startsWith('YOUR_')) {
+      tasks.push(
+        fetch(form.action, { method: 'POST', headers: { Accept: 'application/json' }, body: data })
+          .then((res) => res.json())
+          .then((json) => {
+            if (!json.success) throw new Error(json.message);
+          }),
+      );
+    }
+
     btn.disabled = true;
     label.textContent = form.dataset.sending ?? '';
     try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: new FormData(form),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) throw new Error(json.message);
+      if (tasks.length === 0) throw new Error('No form destination configured');
+      const results = await Promise.allSettled(tasks);
+      results.forEach((r) => r.status === 'rejected' && console.error(r.reason));
+      // Success as soon as the request reached at least one destination
+      if (!results.some((r) => r.status === 'fulfilled')) throw new Error('All destinations failed');
       show(form.dataset.success ?? '', true);
       form.reset();
     } catch {
