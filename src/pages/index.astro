@@ -8,12 +8,10 @@ const target = `/${defaultLang}/`;
   <head>
     <meta charset="utf-8" />
     <title>T2M — Transit M. Meharzi</title>
+    <script is:inline src="/language-redirect.js" data-target={target}></script>
     <meta http-equiv="refresh" content={`0;url=${target}`} />
     <link rel="canonical" href={new URL(target, Astro.site)} />
     <meta name="robots" content="noindex" />
-    <script is:inline define:vars={{ target }}>
-      location.replace(navigator.language?.startsWith('ar') ? '/ar/' : target);
-    </script>
   </head>
   <body><a href={target}>{target}</a></body>
 </html>

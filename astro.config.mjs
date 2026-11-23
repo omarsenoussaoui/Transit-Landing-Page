@@ -8,5 +8,6 @@ export default defineConfig({
   output: 'static',
   vite: {
     plugins: [tailwindcss()],
+    build: { assetsInlineLimit: 0 },
   },
 });
