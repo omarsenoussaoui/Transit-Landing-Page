@@ -1,0 +1,47 @@
+---
+import { site, t, type Lang } from '../config/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const dict = t(lang);
+const d = dict.footer;
+const links = [
+  { href: '#about', label: dict.nav.about },
+  { href: '#services', label: dict.nav.services },
+  { href: '#process', label: dict.nav.process },
+  { href: '#contact', label: dict.nav.contact },
+];
+const year = new Date().getFullYear();
+---
+
+<footer class="on-dark bg-night text-[15px] text-white/65">
+  <div class="mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:grid-cols-2 lg:grid-cols-12 lg:px-8">
+    <div class="sm:col-span-2 lg:col-span-5">
+      <img src="/logo-white.svg" alt={site.name} width="124" height="64" class="h-12 w-auto" loading="lazy" />
+      <p class="font-display mt-5 text-xl font-bold text-lime">{dict.hero.tagline}</p>
+      <p class="mt-2 max-w-sm">{d.about}</p>
+    </div>
+    <div class="lg:col-span-3">
+      <h2 class="text-sm font-semibold !normal-case tracking-wider text-white">{d.links}</h2>
+      <ul class="mt-5 space-y-3">
+        {links.map((l) => <li><a href={l.href} class="hover:text-white">{l.label}</a></li>)}
+      </ul>
+    </div>
+    <div class="lg:col-span-4">
+      <h2 class="text-sm font-semibold !normal-case tracking-wider text-white">{d.contact}</h2>
+      <ul class="mt-5 space-y-3">
+        <li><a href={`tel:${site.phoneLink}`} class="hover:text-white" dir="ltr">{site.phoneDisplay}</a></li>
+        <li><a href={`mailto:${site.email}`} class="hover:text-white">{site.email}</a></li>
+        <li>{dict.address}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <div class="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-6 text-[13px] text-white/50 sm:flex-row sm:justify-between lg:px-8">
+      <p>© {year} {site.name} — {site.fullName}. {d.rights}</p>
+      <p>{d.photos}</p>
+    </div>
+  </div>
+</footer>

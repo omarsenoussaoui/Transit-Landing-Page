@@ -1,0 +1,17 @@
+---
+// The arc from the business card: a thin lime line and a white band sweeping
+// across the section above. `bg` = section above, `fill` = section below.
+interface Props {
+  bg?: string;
+  fill?: string;
+}
+const { bg = 'bg-navy', fill = 'fill-white' } = Astro.props;
+---
+
+<div class:list={[bg, 'leading-[0]']} aria-hidden="true">
+  <svg class="block h-14 w-full sm:h-20 lg:h-28 rtl:-scale-x-100" viewBox="0 0 1440 120" preserveAspectRatio="none">
+    <path class="fill-lime" d="M0 14C520 0 1000 14 1440 82V120H0Z" />
+    <path class="fill-white/90" d="M0 22C520 8 1000 22 1440 90V120H0Z" />
+    <path class={fill} d="M0 40C520 26 1000 40 1440 108V120H0Z" />
+  </svg>
+</div>

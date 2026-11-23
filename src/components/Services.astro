@@ -1,0 +1,48 @@
+---
+import { img, srcset, t, type ImageKey, type Lang } from '../config/site';
+
+interface Props {
+  lang: Lang;
+}
+const d = t(Astro.props.lang).services;
+---
+
+<section id="services" class="bg-paper py-24 lg:py-32">
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-7">
+        <p class="eyebrow text-brand">{d.eyebrow}</p>
+        <h2 class="mt-5 text-4xl font-bold leading-[1.02] sm:text-5xl">{d.title}</h2>
+      </div>
+      <p class="text-lg lg:col-span-4 lg:col-start-9">{d.intro}</p>
+    </div>
+
+    <ul class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-[340px_340px]">
+      {
+        d.items.map((s, i) => (
+          <li
+            class:list={[
+              'group relative isolate flex min-h-80 flex-col justify-end overflow-hidden bg-night',
+              i === 0 && 'sm:col-span-2 lg:col-span-1 lg:row-span-2',
+            ]}
+          >
+            <img
+              src={img(s.image as ImageKey, 900)}
+              srcset={srcset(s.image as ImageKey, [500, 900, 1300])}
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              alt=""
+              loading="lazy"
+              class="absolute inset-0 -z-20 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-night via-night/55 to-night/5" />
+            <div class="p-7 lg:p-8">
+              <span class="font-display text-sm font-bold tracking-wider text-lime">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class:list={['mt-2 font-bold !text-white', i === 0 ? 'text-3xl lg:text-4xl' : 'text-2xl']}>{s.title}</h3>
+              <p class="mt-2 max-w-md text-[15px] leading-relaxed text-white/80">{s.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

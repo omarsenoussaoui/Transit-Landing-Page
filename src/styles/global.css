@@ -1,0 +1,92 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand: #1d3fcc;
+  --color-brand-deep: #0f2a9a;
+  --color-navy: #0a1a5c;
+  --color-night: #071240;
+  --color-lime: #b8d624;
+  --color-lime-dark: #a5c219;
+  --color-sky: #4ba6ea;
+  --color-grey: #8f9296; /* logo / decorative only — fails contrast for text */
+  --color-muted: #5f6573; /* secondary text, 5.3:1+ on white and paper */
+  --color-ink: #10162b;
+  --color-body: #454b5c;
+  --color-paper: #f2f3f5;
+  --color-line: #dde0e6;
+
+  --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', 'Barlow', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+  }
+  /* Arabic: Cairo for everything */
+  html[lang='ar'] {
+    --font-sans: 'Cairo Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Cairo Variable', ui-sans-serif, system-ui, sans-serif;
+  }
+  body {
+    @apply bg-white font-sans text-[17px] leading-relaxed text-body antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-ink;
+  }
+  /* Condensed uppercase headlines (Latin only — Arabic has no case) */
+  html[lang='fr'] :where(h1, h2) {
+    text-transform: uppercase;
+    letter-spacing: 0.005em;
+  }
+  button,
+  select,
+  summary {
+    cursor: pointer;
+  }
+  /* Visible keyboard focus everywhere; lime on dark sections */
+  :where(a, button, select, summary):focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  :where(.on-dark) :where(a, button):focus-visible {
+    outline-color: var(--color-lime);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    ::before,
+    ::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility skip-link {
+  @apply fixed start-4 top-3 z-[100] -translate-y-24 bg-navy px-4 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0;
+}
+
+/* Small label above section titles */
+@utility eyebrow {
+  @apply flex items-center gap-3 text-[13px] font-semibold tracking-[0.16em] uppercase rtl:tracking-normal;
+  &::before {
+    content: '';
+    @apply h-px w-10 bg-current;
+  }
+}
+
+@utility btn {
+  @apply inline-flex min-h-12 items-center justify-center gap-2.5 px-7 text-[15px] font-semibold transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2;
+}
+@utility btn-primary {
+  @apply btn bg-lime text-night hover:bg-lime-dark focus-visible:outline-lime;
+}
+@utility btn-ghost {
+  @apply btn border border-white/40 text-white hover:border-white hover:bg-white/10;
+}

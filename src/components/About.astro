@@ -1,0 +1,48 @@
+---
+import Icon from './Icon.astro';
+import { img, srcset, t, type Lang } from '../config/site';
+
+interface Props {
+  lang: Lang;
+}
+const dict = t(Astro.props.lang);
+const d = dict.about;
+---
+
+<section id="about" class="bg-white py-24 lg:py-32">
+  <div class="mx-auto grid max-w-7xl items-center gap-16 px-5 lg:grid-cols-12 lg:gap-8 lg:px-8">
+    <div class="relative lg:col-span-6">
+      <div class="absolute -bottom-5 -start-5 -z-0 h-3/5 w-3/5 bg-lime sm:-bottom-8 sm:-start-8" aria-hidden="true"></div>
+      <img
+        src={img('about', 1000)}
+        srcset={srcset('about', [600, 1000, 1400])}
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        alt={d.imageAlt}
+        loading="lazy"
+        width="1000"
+        height="1150"
+        class="relative aspect-[4/4.6] w-full object-cover"
+      />
+    </div>
+
+    <div class="lg:col-span-5 lg:col-start-8">
+      <p class="eyebrow text-brand">{d.eyebrow}</p>
+      <h2 class="mt-5 text-4xl font-bold leading-[1.02] sm:text-5xl">{d.title}</h2>
+      <p class="mt-7 text-lg">{d.text}</p>
+      <ul class="mt-9 space-y-4 border-t border-line pt-9">
+        {
+          d.points.map((p) => (
+            <li class="flex gap-4 font-medium text-ink">
+              <span class="mt-2.5 size-2 shrink-0 bg-lime" aria-hidden="true" />
+              {p}
+            </li>
+          ))
+        }
+      </ul>
+      <a href="#contact" class="mt-10 inline-flex items-center gap-2 font-semibold text-brand hover:text-brand-deep">
+        {dict.nav.cta}
+        <Icon name="arrow" class="size-4 rtl:-scale-x-100" />
+      </a>
+    </div>
+  </div>
+</section>

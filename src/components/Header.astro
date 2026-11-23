@@ -1,0 +1,89 @@
+---
+import Icon from './Icon.astro';
+import { languages, site, t, type Lang } from '../config/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const d = t(lang).nav;
+const links = [
+  { href: '#about', label: d.about },
+  { href: '#services', label: d.services },
+  { href: '#process', label: d.process },
+  { href: '#contact', label: d.contact },
+];
+const langs = Object.entries(languages) as [Lang, (typeof languages)[Lang]][];
+const other = langs.find(([code]) => code !== lang)!;
+---
+
+<header class="sticky top-0 z-50 bg-white/95 shadow-[0_1px_0_var(--color-line)] backdrop-blur">
+  <div class="mx-auto flex h-20 max-w-7xl items-center gap-8 px-5 lg:px-8">
+    <a href={`/${lang}/`} class="shrink-0" aria-label={`${site.name} — ${site.fullName}`}>
+      <img src="/logo.svg" alt={site.name} width="186" height="96" class="h-11 w-auto" />
+    </a>
+
+    <nav class="hidden lg:block" aria-label="Main">
+      <ul class="flex items-center gap-8 text-[15px] font-medium text-ink">
+        {links.map((l) => <li><a href={l.href} class="py-2 transition-colors hover:text-brand">{l.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="ms-auto flex items-center gap-5">
+      <a href={`tel:${site.phoneLink}`} class="hidden items-center gap-2 font-semibold text-ink hover:text-brand xl:flex">
+        <Icon name="phone" class="size-4 text-brand" />
+        <span dir="ltr">{site.phoneDisplay}</span>
+      </a>
+      <a
+        href={`/${other[0]}/`}
+        hreflang={other[0]}
+        lang={other[0]}
+        data-lang-link
+        class="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-ink hover:text-brand"
+      >
+        {other[1].label}
+      </a>
+      <a href="#contact" class="btn-primary hidden sm:inline-flex">{d.cta}</a>
+      <button
+        type="button"
+        id="menu-toggle"
+        class="-me-2.5 p-2.5 text-ink lg:hidden"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        aria-label={d.menu}
+      >
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-menu" class="hidden border-t border-line bg-white lg:hidden" aria-label="Mobile">
+    <ul class="mx-auto max-w-7xl divide-y divide-line px-5">
+      {links.map((l) => <li><a href={l.href} class="block py-4 font-medium text-ink">{l.label}</a></li>)}
+      <li class="py-4">
+        <a href={`tel:${site.phoneLink}`} class="flex items-center gap-2 font-semibold text-ink">
+          <Icon name="phone" class="size-4 text-brand" /><span dir="ltr">{site.phoneDisplay}</span>
+        </a>
+      </li>
+      <li class="py-4 sm:hidden"><a href="#contact" class="btn-primary w-full">{d.cta}</a></li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const btn = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const setOpen = (open: boolean) => {
+    menu?.classList.toggle('hidden', !open);
+    btn?.setAttribute('aria-expanded', String(open));
+  };
+  btn?.addEventListener('click', () => setOpen(menu?.classList.contains('hidden') ?? false));
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+
+  // Keep the current section when switching language
+  document.querySelectorAll<HTMLAnchorElement>('[data-lang-link]').forEach((a) =>
+    a.addEventListener('click', () => {
+      if (location.hash) a.href = a.pathname + location.hash;
+    }),
+  );
+</script>

@@ -1,0 +1,56 @@
+---
+import Icon from './Icon.astro';
+import Wave from './Wave.astro';
+import { img, site, t, type Lang } from '../config/site';
+
+interface Props {
+  lang: Lang;
+}
+const dict = t(Astro.props.lang);
+const d = dict.process;
+const b = dict.band;
+const waHref = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(dict.contact.whatsappMessage)}`;
+---
+
+<section id="process" class="on-dark relative isolate overflow-hidden bg-navy pt-24 text-white/75 lg:pt-32">
+  <img src={img('band', 1600)} alt="" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover opacity-20 mix-blend-luminosity" />
+  <div class="absolute inset-0 -z-10 bg-gradient-to-b from-navy/70 to-navy" aria-hidden="true"></div>
+
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <p class="eyebrow text-lime">{d.eyebrow}</p>
+    <h2 class="mt-5 max-w-2xl text-4xl font-bold leading-[1.02] !text-white sm:text-5xl">{d.title}</h2>
+
+    <ol class="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        d.steps.map((s, i) => (
+          <li class="relative border-t border-white/20 pt-8">
+            <span class="absolute -top-px start-0 h-[3px] w-16 bg-lime" aria-hidden="true" />
+            <span class="font-display block text-6xl font-bold leading-none text-white/25">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="mt-5 text-2xl font-bold !text-white">{s.title}</h3>
+            <p class="mt-3">{s.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <!-- Urgent call strip -->
+    <div class="mt-20 flex flex-col gap-6 border border-white/15 bg-white/[0.04] p-8 lg:flex-row lg:items-center lg:justify-between lg:p-10">
+      <div>
+        <p class="font-display text-3xl font-bold leading-tight text-white">{b.title}</p>
+        <p class="mt-1 text-lg">{b.text}</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href={`tel:${site.phoneLink}`} class="btn-primary">
+          <Icon name="phone" class="size-4" />
+          <span dir="ltr">{site.phoneDisplay}</span>
+        </a>
+        <a href={waHref} target="_blank" rel="noopener" class="btn-ghost">
+          <Icon name="whatsapp" class="size-5" />
+          {b.whatsapp}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-20 lg:mt-28"><Wave bg="bg-transparent" fill="fill-white" /></div>
+</section>
