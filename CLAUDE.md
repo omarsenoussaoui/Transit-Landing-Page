@@ -47,7 +47,7 @@ npm run preview
 
 ## Placeholders still to replace (marked `TODO` in `site.ts`)
 
-Phone, WhatsApp, email, address, hours, Google Maps embed/link, Web3Forms key, trust facts (licence n°, ports, "24 h"). `astro.config.mjs` `site` is `https://www.example.com` — set to the real domain once deployed.
+Email (hidden while empty), opening hours, Web3Forms key, trust facts "ports" and "24 h". Phone, WhatsApp, address, map and licence n° are the client's real details. `astro.config.mjs` `site` is `https://transit-landing-page.netlify.app` — update if a custom domain is added.
 
 ## Git
 

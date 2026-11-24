@@ -11,19 +11,20 @@ export const site = {
   fullName: 'Transit M. Meharzi',
 
   // Phone shown on the page (display) and used in the tel: link (international format)
-  phoneDisplay: '+213 (0) 00 00 00 00', // TODO: replace
-  phoneLink: '+213000000000', // TODO: replace (no spaces)
+  phoneDisplay: '+213 550 15 91 00',
+  phoneLink: '+213550159100',
 
   // WhatsApp number in international format, digits only, no "+" (e.g. 213550123456)
-  whatsapp: '213000000000', // TODO: replace
+  whatsapp: '213555041958',
+  whatsappDisplay: '+213 555 04 19 58',
 
-  email: 'contact@example.com', // TODO: replace
+  email: '', // TODO: client email (hidden on the site while empty)
 
   // Google Maps embed URL: Google Maps → Share → Embed a map → copy the src="..." value
   mapEmbedUrl:
-    'https://www.google.com/maps?q=Port+d%27Alger,+Alger,+Alg%C3%A9rie&output=embed', // TODO: replace
+    'https://www.google.com/maps?q=36.7695914,3.0545705&z=17&hl=fr&output=embed',
   // Link opened by the "Open in Google Maps" button
-  mapLink: 'https://maps.google.com/?q=Port+d%27Alger,+Alger', // TODO: replace
+  mapLink: 'https://maps.app.goo.gl/Td1Xq38o5nyBkJ2q7',
 
   // Web3Forms access key — get one free at https://web3forms.com (sent to your email)
   web3formsKey: 'YOUR_WEB3FORMS_ACCESS_KEY', // TODO: replace
@@ -88,7 +89,7 @@ const fr = {
     menu: 'Menu',
     skip: 'Aller au contenu',
   },
-  address: 'Adresse à compléter, Alger, Algérie', // TODO: replace
+  address: 'N° 07, Boulevard Mohamed V, 3ème étage, Alger Centre',
   hours: 'Dim – Jeu : 8h00 – 17h00', // TODO: replace
   hero: {
     kicker: 'Transitaire en douane · Alger',
@@ -98,9 +99,9 @@ const fr = {
     cta: 'Demander un devis',
     secondary: 'Découvrir nos services',
   },
-  // Key facts shown under the hero — TODO: check each claim is accurate
+  // Key facts shown under the hero — TODO: confirm ports and "24 h" with the client
   trust: [
-    { title: 'Commissionnaire agréé', text: 'Agrément n° 00000' },
+    { title: 'Commissionnaire agréé', text: 'Agrément n° 04022 du 10 janvier 2004' },
     { title: 'Tous les ports', text: 'Alger, Oran, Béjaïa, Annaba…' },
     { title: 'Devis sous 24 h', text: 'Jours ouvrables' },
     { title: 'Français · العربية', text: 'Un interlocuteur dédié' },
@@ -170,7 +171,7 @@ const fr = {
     subtitle: 'Décrivez votre opération, nous vous répondons sous 24 h ouvrables.',
     phone: 'Téléphone',
     whatsapp: 'Écrire sur WhatsApp',
-    whatsappMessage: 'Bonjour T2M, je souhaite obtenir un devis.',
+    whatsappMessage: 'Bonjour T2M, je vous contacte depuis votre site internet. J’aimerais obtenir un devis.',
     email: 'E-mail',
     address: 'Adresse',
     hours: 'Horaires',
@@ -219,7 +220,7 @@ const ar: Dict = {
     menu: 'القائمة',
     skip: 'الانتقال إلى المحتوى',
   },
-  address: 'العنوان (يُستكمل لاحقًا)، الجزائر العاصمة، الجزائر', // TODO: replace
+  address: 'رقم 07، شارع محمد الخامس، الطابق الثالث، الجزائر الوسطى',
   hours: 'الأحد – الخميس: 8:00 – 17:00', // TODO: replace
   hero: {
     kicker: 'وكيل عبور وتخليص جمركي · الجزائر',
@@ -229,7 +230,7 @@ const ar: Dict = {
     secondary: 'اكتشف خدماتنا',
   },
   trust: [
-    { title: 'وكيل عبور معتمد', text: 'اعتماد رقم 00000' },
+    { title: 'وكيل عبور معتمد', text: 'اعتماد رقم 04022 بتاريخ 10 جانفي 2004' },
     { title: 'جميع الموانئ', text: 'الجزائر، وهران، بجاية، عنابة…' },
     { title: 'عرض سعر خلال 24 ساعة', text: 'أيام العمل' },
     { title: 'العربية · Français', text: 'محاور مخصّص' },
@@ -299,7 +300,7 @@ const ar: Dict = {
     subtitle: 'صفوا لنا عمليتكم، نردّ عليكم خلال 24 ساعة من أيام العمل.',
     phone: 'الهاتف',
     whatsapp: 'راسلنا على واتساب',
-    whatsappMessage: 'السلام عليكم T2M، أرغب في الحصول على عرض سعر.',
+    whatsappMessage: 'السلام عليكم T2M، أتواصل معكم عبر موقعكم الإلكتروني وأرغب في الحصول على عرض سعر.',
     email: 'البريد الإلكتروني',
     address: 'العنوان',
     hours: 'أوقات العمل',

@@ -275,7 +275,12 @@ const filters = [
             tel.dir = 'ltr';
             contact.append(tel);
             const wa = el('a', 'font-semibold text-[#128C4A] hover:underline', 'WhatsApp');
-            wa.href = `https://wa.me/${r.phone.replace(/\D/g, '').replace(/^0/, '213')}`;
+            // Opens WhatsApp with a ready-made reply in the customer's language (free wa.me link)
+            const reply =
+              r.language === 'ar'
+                ? `السلام عليكم ${r.name}، معكم T2M — ترانزيت م. محرزي. استلمنا طلب عرض السعر الخاص بكم (${r.service}) وسنتواصل معكم في أقرب وقت.`
+                : `Bonjour ${r.name}, ici T2M — Transit M. Meharzi. Nous avons bien reçu votre demande de devis (${r.service}) et revenons vers vous très rapidement.`;
+            wa.href = `https://wa.me/${r.phone.replace(/\D/g, '').replace(/^0/, '213')}?text=${encodeURIComponent(reply)}`;
             wa.target = '_blank';
             wa.rel = 'noopener noreferrer';
             contact.append(wa);

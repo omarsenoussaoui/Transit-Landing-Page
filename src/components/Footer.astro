@@ -33,7 +33,12 @@ const year = new Date().getFullYear();
       <h2 class="text-sm font-semibold !normal-case tracking-wider text-white">{d.contact}</h2>
       <ul class="mt-5 space-y-3">
         <li><a href={`tel:${site.phoneLink}`} class="hover:text-white" dir="ltr">{site.phoneDisplay}</a></li>
-        <li><a href={`mailto:${site.email}`} class="hover:text-white">{site.email}</a></li>
+        <li>
+          <a href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(dict.contact.whatsappMessage)}`} target="_blank" rel="noopener" class="hover:text-white">
+            {dict.band.whatsapp} : <span dir="ltr">{site.whatsappDisplay}</span>
+          </a>
+        </li>
+        {site.email && <li><a href={`mailto:${site.email}`} class="hover:text-white">{site.email}</a></li>}
         <li>{dict.address}</li>
       </ul>
     </div>
